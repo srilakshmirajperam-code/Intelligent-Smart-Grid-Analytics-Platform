@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Grid Analytics Platform</title>
+<style>
+:root{--bg:#071426;--panel:#0d2038;--panel2:#102944;--line:#1e4265;--text:#eaf4ff;--muted:#9bb4cc;--blue:#28a8ff;--cyan:#26e0dc;--green:#28d995;--orange:#ffb454;--red:#ff647c}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#071426,#0b1d32 55%,#071426);color:var(--text)}
+header{padding:22px 28px;background:linear-gradient(100deg,#082b4d,#10456a);border-bottom:1px solid #28658c;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+header h1{margin:0;font-size:clamp(20px,3vw,30px)}header p{margin:7px 0 0;color:#b9d9f4;font-size:14px}.badge{padding:8px 12px;border:1px solid #36759c;border-radius:20px;color:#a8f5dc;font-size:12px}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 90px)}aside{padding:20px 12px;border-right:1px solid var(--line);background:#08182b}
+.brand{padding:10px 12px 20px;font-weight:bold;color:var(--cyan);font-size:17px}.navbtn{display:block;width:100%;text-align:left;padding:12px;border:0;border-radius:9px;margin:4px 0;background:transparent;color:#c1d5e8;cursor:pointer;font-size:14px}.navbtn:hover,.navbtn.active{background:#123a5a;color:white}
+main{padding:22px;min-width:0}.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.section-title h2{margin:0;font-size:22px}.muted{color:var(--muted);font-size:13px}
+button.action{background:#087dc3;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600}button.action:hover{background:#159be8}button.secondary{background:#18344f}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:17px;min-width:0;box-shadow:0 8px 24px #0002}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:10px}.kpi-value{font-size:clamp(21px,2vw,29px);font-weight:700;letter-spacing:.2px}.kpi-foot{font-size:12px;margin-top:8px;color:var(--green)}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:15px;margin-bottom:15px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}.card h3{margin:0 0 14px;font-size:16px}.chart{width:100%;height:230px;display:block}.twin{height:230px;border-radius:10px;background:radial-gradient(ellipse at center,#064d78,#07182c 70%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.twin svg{width:100%;height:100%}.twin-label{position:absolute;bottom:12px;left:12px;background:#07182ccc;border:1px solid #1b729a;padding:7px 10px;border-radius:7px;font-size:12px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pill{font-size:11px;padding:7px 10px;border:1px solid #285374;border-radius:20px;color:#cce6fa;background:#0a1c30}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid #1d3a56}th{color:#9fc4e2;font-weight:600}td{color:#dceafa}.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:11px;font-weight:bold}.danger{background:#542439;color:#ff9aae}.warning{background:#4c3b20;color:#ffd18c}.normal{background:#124b42;color:#8df5d1}
+.progress{height:7px;background:#18344f;border-radius:20px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:20px}
+.footer{color:#7898b5;font-size:11px;text-align:center;padding:22px 0 4px}
+.notice{display:none;margin-bottom:14px;padding:12px;border-radius:9px;background:#123a33;border:1px solid #237f65;color:#b7ffe7;font-size:13px}
+/* Motion, live simulation, and ERP styles */
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 #26e0dc22}50%{box-shadow:0 0 0 7px #26e0dc08}}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.35}}
+.card{animation:riseIn .45s ease both;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.card:hover{transform:translateY(-2px);border-color:#2876a6;box-shadow:0 12px 30px #0003}
+.badge:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#28d995;margin-right:7px;animation:liveBlink 1.5s infinite}
+.twin{animation:pulseGlow 3s infinite}
+.navbtn{transition:background .2s,color .2s}
+.erp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.erp-action{display:flex;align-items:center;gap:10px;text-align:left;width:100%;background:#102944;border:1px solid #244b6b;border-radius:10px;padding:14px;color:#eaf4ff;cursor:pointer;transition:.2s}
+.erp-action:hover{border-color:#28a8ff;transform:translateY(-2px)}
+.erp-icon{font-size:24px}.erp-action strong{display:block;font-size:13px}.erp-action small{display:block;color:#9bb4cc;margin-top:4px}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#28d995;margin-right:6px;animation:liveBlink 1s infinite}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media(max-width:1050px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.grid3{grid-template-columns:1fr}.erp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:10px;display:flex;gap:5px;overflow:auto}.brand{display:none}.navbtn{white-space:nowrap;width:auto;margin:0;padding:10px}main{padding:14px}.kpis{gap:9px}.card{padding:13px}header{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Intelligent Smart Grid Analytics Platform</h1>
+    <p>Digital Twin Technology · AI Analytics · Full-Stack Web Dashboard</p>
+  </div>
+  <div class="badge">● DEMO SYSTEM ONLINE</div>
+</header>
+<div class="layout">
+<aside>
+  <div class="brand">⚡ GRID INTELLIGENCE</div>
+  <button class="navbtn active" data-view="Dashboard">▦ Dashboard</button>
+  <button class="navbtn" data-view="Monitoring">◉ Real-Time Monitoring</button>
+  <button class="navbtn" data-view="Digital Twin">◇ Digital Twin</button>
+  <button class="navbtn" data-view="Fault Prediction">⚠ Fault Prediction</button>
+  <button class="navbtn" data-view="Load Forecasting">⌁ Load Forecasting</button>
+  <button class="navbtn" data-view="Energy Optimization">↗ Energy Optimization</button>
+  <button class="navbtn" data-view="Reports">▤ Reports</button>
+</aside>
+<main>
+  <div id="notice" class="notice"></div>
+  <div class="section-title">
+    <div><h2 id="pageTitle">Smart Grid Dashboard</h2><div class="muted">Illustrative demo data · Updated <span id="lastUpdated">just now</span></div></div>
+    <div><span class="muted"><span class="live-dot"></span><span id="autoStatus">Auto-simulation ON</span></span> <button class="action secondary" id="autoBtn">Pause Auto</button> <button class="action secondary" id="themeBtn">Toggle Theme</button> <button class="action secondary" id="simulateBtn">Run Simulation</button> <button class="action" id="reportBtn">Generate Report</button></div>
+  </div>
+  <section class="card" style="margin-bottom:15px">
+    <div class="section-title" style="margin-bottom:12px"><div><h3 style="margin:0">Smart Grid ERP Management</h3><div class="muted">Integrated operations, assets, maintenance, inventory, workforce, billing and reports</div></div><span class="badge">ERP MODULES</span></div>
+    <div class="erp-grid">
+      <button class="erp-action" data-erp="Asset Management"><span class="erp-icon">🏭</span><span><strong>Asset Management</strong><small>Transformers, feeders, meters</small></span></button>
+      <button class="erp-action" data-erp="Maintenance Management"><span class="erp-icon">🛠️</span><span><strong>Maintenance</strong><small>Work orders and schedules</small></span></button>
+      <button class="erp-action" data-erp="Inventory Management"><span class="erp-icon">📦</span><span><strong>Inventory</strong><small>Spare parts and stock</small></span></button>
+      <button class="erp-action" data-erp="Workforce Management"><span class="erp-icon">👷</span><span><strong>Workforce</strong><small>Technicians and assignments</small></span></button>
+      <button class="erp-action" data-erp="Energy Billing"><span class="erp-icon">🧾</span><span><strong>Billing & Consumers</strong><small>Usage, bills and accounts</small></span></button>
+      <button class="erp-action" data-erp="Procurement Management"><span class="erp-icon">🛒</span><span><strong>Procurement</strong><small>Purchase requests and vendors</small></span></button>
+      <button class="erp-action" data-erp="Incident Management"><span class="erp-icon">🚨</span><span><strong>Incident Management</strong><small>Faults, outages and response</small></span></button>
+      <button class="erp-action" data-erp="ERP Reports"><span class="erp-icon">📑</span><span><strong>ERP Reports</strong><small>Operational and financial summaries</small></span></button>
+    </div>
+  </section>
+  <section class="kpis">
+    <div class="card"><div class="kpi-label">REAL-TIME POWER</div><div class="kpi-value"><span id="power">245.6</span> <small>MW</small></div><div class="kpi-foot">▲ 5.2% vs previous interval</div></div>
+    <div class="card"><div class="kpi-label">GRID FREQUENCY</div><div class="kpi-value"><span id="freq">50.01</span> <small>Hz</small></div><div class="kpi-foot">● Within operating range</div></div>
+    <div class="card"><div class="kpi-label">AVERAGE VOLTAGE</div><div class="kpi-value"><span id="voltage">11.8</span> <small>kV</small></div><div class="kpi-foot">● Stable in this demo</div></div>
+    <div class="card"><div class="kpi-label">ACTIVE ALERTS</div><div class="kpi-value" id="alerts">2</div><div class="kpi-foot" style="color:var(--orange)">Review predicted events</div></div>
+  </section>
+  <section class="grid2">
+    <div class="card"><h3>Load Forecasting <span class="muted">(Actual vs Predicted)</span></h3><canvas id="loadChart" class="chart"></canvas><div class="pills"><span class="pill">Blue: Actual load</span><span class="pill">Orange: Predicted load</span><span class="pill">Horizon: 24 hours</span></div></div>
+    <div class="card"><h3>Digital Twin — Grid Model</h3>
+      <div class="twin">
+      <svg viewBox="0 0 500 260" role="img" aria-label="Illustrative digital twin of power lines and substation">
+        <defs><linearGradient id="wire" x1="0" x2="1"><stop stop-color="#00d9ff"/><stop offset="1" stop-color="#2a70ff"/></linearGradient></defs>
+        <g stroke="#0e83b2" stroke-width="1" opacity=".35">
+          <path d="M0 220 L250 120 L500 220 M0 245 L250 145 L500 245 M40 260 L250 175 L460 260"/>
+          <path d="M30 0V260 M90 0V260 M150 0V260 M210 0V260 M270 0V260 M330 0V260 M390 0V260 M450 0V260"/>
+        </g>
+        <g fill="none" stroke="url(#wire)" stroke-width="3">
+          <path d="M80 55 L48 225 M80 55 L112 225 M58 165 L102 165 M50 205 L110 205 M45 125 L115 125 M48 225 L112 225"/>
+          <path d="M250 40 L218 225 M250 40 L282 225 M228 150 L272 150 M220 190 L280 190 M215 110 L285 110 M218 225 L282 225"/>
+          <path d="M420 65 L388 225 M420 65 L452 225 M398 165 L442 165 M390 205 L450 205 M385 125 L455 125 M388 225 L452 225"/>
+          <path d="M80 75 Q165 45 250 60 T420 80 M80 95 Q165 65 250 80 T420 100"/>
+        </g>
+        <g fill="#25e2f2" stroke="#d5ffff" stroke-width="1">
+          <circle cx="80" cy="75" r="5"/><circle cx="250" cy="60" r="5"/><circle cx="420" cy="80" r="5"/>
+          <rect x="190" y="190" width="120" height="38" rx="4" fill="#0c4c78"/>
+          <rect x="205" y="175" width="22" height="15" fill="#1488b4"/><rect x="235" y="165" width="28" height="25" fill="#1488b4"/><rect x="272" y="180" width="22" height="10" fill="#1488b4"/>
+        </g>
+        <g fill="#d9f7ff" font-size="11" font-family="Arial"><text x="24" y="245">LINE A</text><text x="220" y="245">SUBSTATION</text><text x="390" y="245">LINE B</text></g>
+      </svg>
+      <div class="twin-label">Virtual model · Simulation mode</div>
+      </div>
+      <div class="pills"><span class="pill">Transformer: 4</span><span class="pill">Feeders: 12</span><span class="pill">Smart meters: 1,248</span></div>
+    </div>
+  </section>
+  <section class="grid2">
+    <div class="card"><h3>Fault Prediction & Equipment Health</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <input id="faultSearch" type="search" placeholder="Search equipment or fault..." aria-label="Search faults" style="flex:1;min-width:180px;padding:10px;border-radius:8px;border:1px solid #285374;background:#091a2d;color:#eaf4ff">
+        <button class="action secondary" id="exportFaultsBtn">Export Faults CSV</button>
+        <button class="action" id="ackBtn">Acknowledge Alerts</button>
+      </div>
+      <table><thead><tr><th>Equipment</th><th>Predicted event</th><th>Confidence*</th><th>Status</th></tr></thead>
+      <tbody id="faultRows">
+      <tr><td>Transformer T1</td><td>Overheating risk</td><td>92%</td><td><span class="status danger">Review</span></td></tr>
+      <tr><td>Transmission L2</td><td>Insulation anomaly</td><td>76%</td><td><span class="status warning">Warning</span></td></tr>
+      <tr><td>Generator G1</td><td>Vibration anomaly</td><td>63%</td><td><span class="status normal">Monitor</span></td></tr>
+      </tbody></table>
+      <p class="muted">*Illustrative demo scores, not validated predictions or operational alarms.</p>
+    </div>
+    <div class="card"><h3>Energy Optimization</h3><canvas id="energyChart" class="chart"></canvas><div class="kpi-foot">Scenario estimate: <strong id="saving">18%</strong> potential consumption reduction</div><p class="muted">Illustrative scenario only; validate against real grid constraints and data.</p></div>
+  </section>
+  <section class="grid3">
+    <div class="card"><h3>Renewable Integration</h3><div class="kpi-value">38.4 <small>%</small></div><p class="muted">Share of energy in this demo</p><div class="progress"><span style="width:38.4%"></span></div></div>
+    <div class="card"><h3>System Reliability</h3><div class="kpi-value">99.2 <small>%</small></div><p class="muted">Illustrative availability indicator</p><div class="progress"><span style="width:99.2%"></span></div></div>
+    <div class="card"><h3>Data Pipeline</h3><div class="kpi-value" style="color:var(--green)">Healthy</div><p class="muted">Sensor feed → API → analytics → dashboard</p><div class="progress"><span style="width:88%"></span></div></div>
+  </section>
+  <section class="grid3" style="margin-top:15px">
+    <div class="card"><h3>Sensor Connectivity</h3><div class="kpi-value" style="color:var(--green)">98.6 <small>%</small></div><p class="muted">Demo sensor availability</p><div class="progress"><span style="width:98.6%"></span></div></div>
+    <div class="card"><h3>Maintenance Queue</h3><div class="kpi-value" id="maintenanceCount">3</div><p class="muted">Equipment flagged for inspection</p><button class="action secondary" id="maintenanceBtn">View Maintenance Items</button></div>
+    <div class="card"><h3>System Notifications</h3><div class="kpi-value" id="notificationCount">2</div><p class="muted">Unacknowledged demo alerts</p><button class="action secondary" id="notificationsBtn">View Notifications</button></div>
+  </section>
+  <section class="card" style="margin-top:15px">
+    <div class="section-title"><div><h3 style="margin:0">ERP Operations Register</h3><div class="muted">Sample records for the project demonstration</div></div><button class="action secondary" id="addWorkOrderBtn">+ Add Work Order</button></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Work Order</th><th>Asset</th><th>Department</th><th>Priority</th><th>Status</th></tr></thead>
+    <tbody id="workOrderRows">
+      <tr><td>WO-1001</td><td>Transformer T1</td><td>Maintenance</td><td>High</td><td><span class="status warning">Scheduled</span></td></tr>
+      <tr><td>WO-1002</td><td>Transmission L2</td><td>Grid Operations</td><td>Medium</td><td><span class="status normal">Assigned</span></td></tr>
+      <tr><td>WO-1003</td><td>Smart Meter M24</td><td>Metering</td><td>Low</td><td><span class="status normal">Open</span></td></tr>
+    </tbody></table></div>
+  </section>
+  <div class="footer">M.Tech Research Prototype · Angular UI concept · Node.js/Express API · MongoDB storage · Python AI service<br>Demo values are simulated. Do not use this prototype for real electrical grid operation or safety decisions.</div>
+</main>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+function drawLineChart(canvasId, actual, predicted){
+  const c=$(canvasId),ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1,rect=c.getBoundingClientRect();
+  c.width=rect.width*dpr;c.height=rect.height*dpr;ctx.scale(dpr,dpr);
+  const w=rect.width,h=rect.height,p={l:38,r:12,t:12,b:30},cw=w-p.l-p.r,ch=h-p.t-p.b;
+  ctx.clearRect(0,0,w,h);ctx.font='10px Arial';ctx.strokeStyle='#244562';ctx.fillStyle='#9bb4cc';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){let y=p.t+ch*i/4;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillText(String(400-i*100),4,y+3)}
+  for(let i=0;i<7;i++){let x=p.l+cw*i/6;ctx.fillText(['00:00','04:00','08:00','12:00','16:00','20:00','24:00'][i],x-14,h-8)}
+  function line(data,color){ctx.beginPath();data.forEach((v,i)=>{let x=p.l+cw*i/(data.length-1),y=p.t+ch*(1-v/400);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();data.forEach((v,i)=>{let x=p.l+cw*i/(data.length-1),y=p.t+ch*(1-v/400);ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()})}
+  line(actual,'#27a9ff');line(predicted,'#ffad42');
+}
+function drawBars(){
+  const c=$('energyChart'),ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1,r=c.getBoundingClientRect();c.width=r.width*dpr;c.height=r.height*dpr;ctx.scale(dpr,dpr);
+  let w=r.width,h=r.height;ctx.clearRect(0,0,w,h);ctx.font='11px Arial';ctx.fillStyle='#9bb4cc';ctx.strokeStyle='#244562';
+  for(let i=0;i<4;i++){let y=20+i*(h-55)/3;ctx.beginPath();ctx.moveTo(38,y);ctx.lineTo(w-10,y);ctx.stroke();ctx.fillText(String(300-i*100),3,y+4)}
+  let base=h-30,scale=(h-55)/300,bw=Math.min(55,w*.19),x1=w*.25,x2=w*.62;
+  ctx.fillStyle='#178cf0';ctx.fillRect(x1,base-240*scale,bw,240*scale);ctx.fillStyle='#2bd39a';ctx.fillRect(x2,base-197*scale,bw,197*scale);
+  ctx.fillStyle='#d9e9f8';ctx.fillText('Before',x1-3,base+16);ctx.fillText('After',x2+6,base+16);
+}
+function redraw(){drawLineChart('loadChart',[210,180,200,170,195,230,260,300,330,340,315,280,230,190,170,185,220,260,310,340,330,300,270,240],[200,190,185,180,205,240,275,310,325,330,305,270,225,200,180,195,235,275,315,330,320,295,260,230]);drawBars()}
+redraw();window.addEventListener('resize',redraw);
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  $('pageTitle').textContent=b.dataset.view==='Dashboard'?'Smart Grid Dashboard':b.dataset.view;
+  $('notice').style.display='block';$('notice').textContent='Opened '+b.dataset.view+' view. This prototype uses illustrative demo data; connect a backend and validated models for live operation.';
+}));
+$('simulateBtn').addEventListener('click',()=>{
+  const p=(240+Math.random()*18).toFixed(1),f=(49.98+Math.random()*.06).toFixed(2),v=(11.6+Math.random()*.5).toFixed(2);
+  $('power').textContent=p;$('freq').textContent=f;$('voltage').textContent=v;
+  $('alerts').textContent=Math.floor(Math.random()*4)+1;$('lastUpdated').textContent=new Date().toLocaleTimeString();
+  $('notice').style.display='block';$('notice').textContent='Simulation complete. KPI values have been refreshed with generated sample values, not live grid measurements.';
+});
+// Auto-simulation refreshes illustrative sample data every 5 seconds.
+let autoSimulation=true;
+function runAutoSimulation(){
+  if(!autoSimulation) return;
+  const power=(235+Math.random()*25).toFixed(1);
+  const freq=(49.97+Math.random()*.07).toFixed(2);
+  const voltage=(11.5+Math.random()*.6).toFixed(2);
+  $('power').textContent=power;$('freq').textContent=freq;$('voltage').textContent=voltage;
+  $('lastUpdated').textContent=new Date().toLocaleTimeString();
+  // Add a small dynamic shift to forecast and optimization charts.
+  redraw();
+}
+const autoTimer=setInterval(runAutoSimulation,5000);
+$('autoBtn').addEventListener('click',()=>{
+  autoSimulation=!autoSimulation;
+  $('autoBtn').textContent=autoSimulation?'Pause Auto':'Resume Auto';
+  $('autoStatus').textContent=autoSimulation?'Auto-simulation ON':'Auto-simulation PAUSED';
+  $('notice').style.display='block';
+  $('notice').textContent=autoSimulation?'Automatic demo simulation resumed.':'Automatic demo simulation paused.';
+});
+document.querySelectorAll('[data-erp]').forEach(btn=>btn.addEventListener('click',()=>{
+  const module=btn.dataset.erp;
+  $('notice').style.display='block';
+  $('notice').textContent=module+' module opened in demo mode. Add authenticated backend APIs and database collections to enable persistent ERP records.';
+}));
+$('addWorkOrderBtn').addEventListener('click',()=>{
+  const count=$('workOrderRows').rows.length+1001;
+  const row=document.createElement('tr');
+  row.innerHTML='<td>WO-'+count+'</td><td>New Grid Asset</td><td>Maintenance</td><td>Medium</td><td><span class="status warning">Open</span></td>';
+  $('workOrderRows').appendChild(row);
+  $('notice').style.display='block';$('notice').textContent='Sample work order added locally. Connect a backend to save records permanently.';
+});
+$('faultSearch').addEventListener('input',()=>{
+  const q=$('faultSearch').value.toLowerCase();
+  document.querySelectorAll('#faultRows tr').forEach(row=>{
+    row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';
+  });
+});
+$('exportFaultsBtn').addEventListener('click',()=>{
+  const rows=[['Equipment','Predicted event','Confidence','Status']];
+  document.querySelectorAll('#faultRows tr').forEach(row=>{
+    if(row.style.display==='none') return;
+    rows.push(Array.from(row.cells).map(cell=>cell.innerText.trim()));
+  });
+  const csv=rows.map(row=>row.map(v=>'"'+v.replaceAll('"','""')+'"').join(',')).join('\\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='smart-grid-faults.csv';a.click();URL.revokeObjectURL(url);
+});
+$('ackBtn').addEventListener('click',()=>{
+  document.querySelectorAll('#faultRows .status').forEach(s=>{s.className='status normal';s.textContent='Acknowledged';});
+  $('alerts').textContent='0';$('notificationCount').textContent='0';
+  $('notice').style.display='block';$('notice').textContent='Demo alerts acknowledged. This action only changes the local prototype display.';
+});
+$('themeBtn').addEventListener('click',()=>{
+  const light=document.body.dataset.theme!=='light';
+  document.body.dataset.theme=light?'light':'dark';
+  if(light){
+    document.body.style.background='#edf4fb';document.body.style.color='#10253a';
+    document.querySelectorAll('.card').forEach(c=>{c.style.background='linear-gradient(145deg,#ffffff,#edf5fc)';c.style.color='#10253a';c.style.borderColor='#c4d7e8';});
+    $('notice').style.color='#10253a';
+  }else{
+    document.body.style.background='linear-gradient(135deg,#071426,#0b1d32 55%,#071426)';document.body.style.color='var(--text)';
+    document.querySelectorAll('.card').forEach(c=>{c.style.background='';c.style.color='';c.style.borderColor='';});
+  }
+});
+$('maintenanceBtn').addEventListener('click',()=>{
+  $('notice').style.display='block';$('notice').textContent='Maintenance queue: Transformer T1 — inspect temperature; Transmission Line L2 — review insulation; Generator G1 — inspect vibration. Demo items only.';
+});
+$('notificationsBtn').addEventListener('click',()=>{
+  $('notice').style.display='block';$('notice').textContent='Notifications: 1) Transformer temperature risk. 2) Transmission line insulation anomaly. These are illustrative alerts, not live alarms.';
+});
+$('reportBtn').addEventListener('click',()=>{
+  const report=`SMART GRID ANALYTICS - DEMO REPORT\nGenerated: ${new Date().toLocaleString()}\nPower: ${$('power').textContent} MW\nFrequency: ${$('freq').textContent} Hz\nAverage voltage: ${$('voltage').textContent} kV\nActive alerts: ${$('alerts').textContent}\n\nNote: Illustrative demo values only. Not for operational decisions.`;
+  const blob=new Blob([report],{type:'text/plain'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='smart-grid-demo-report.txt';a.click();URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
